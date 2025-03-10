@@ -1,20 +1,20 @@
 #!/usr/bin/python
 """
-    This Version: $Id: obj2egg.py,v 1.7 2008/05/26 17:42:53 andyp Exp $
-    Info: info >at< pfastergames.com
+This Version: $Id: obj2egg.py,v 1.7 2008/05/26 17:42:53 andyp Exp $
+Info: info >at< pfastergames.com
 
-    Extended from: http://panda3d.org/phpbb2/viewtopic.php?t=3378
-    .___..__ .___.___.___.__..__ .  .
-      |  [__)[__ [__ [__ |  |[__)|\/|
-      |  |  \[___[___|   |__||  \|  |
-    obj2egg.py [n##][b][t][s] filename1.obj ...
-        -n regenerate normals with # degree smoothing
-            exaple -n30  (normals at less 30 degrees will be smoothed)
-        -b make binarmals
-        -t make tangents
-        -s show in pview
+Extended from: http://panda3d.org/phpbb2/viewtopic.php?t=3378
+.___..__ .___.___.___.__..__ .  .
+  |  [__)[__ [__ [__ |  |[__)|\/|
+  |  |  \[___[___|   |__||  \|  |
+obj2egg.py [n##][b][t][s] filename1.obj ...
+    -n regenerate normals with # degree smoothing
+        exaple -n30  (normals at less 30 degrees will be smoothed)
+    -b make binarmals
+    -t make tangents
+    -s show in pview
 
-    licensed under WTFPL (http://sam.zoy.org/wtfpl/)
+licensed under WTFPL (http://sam.zoy.org/wtfpl/)
 """
 
 from pandac.PandaModules import *
@@ -26,15 +26,17 @@ import sys, os
 
 def floats(float_list):
     """coerce a list of strings that represent floats into a list of floats"""
-    return [ float(number) for number in float_list ]
+    return [float(number) for number in float_list]
+
 
 def ints(int_list):
     """coerce a list of strings that represent integers into a list of integers"""
-    return [ int(number) for number in int_list ]
+    return [int(number) for number in int_list]
 
 
 class ObjMaterial:
     """a wavefront material"""
+
     def __init__(self):
         self.filename = None
         self.name = "default"
@@ -65,8 +67,8 @@ class ObjMaterial:
     def isTextured(self):
         # for k in ("map_Kd", "map_Bump", "map_Ks"):    <-- NOT YET
         if self.attrib.has_key("map_Kd"):
-            return True;
-        return False;
+            return True
+        return False
 
     def getEggTexture(self):
         if self.eggdiffusetexture:
@@ -103,8 +105,10 @@ class ObjMaterial:
         self.eggmaterial = m
         return self.eggmaterial
 
+
 class MtlFile:
     """an object representing all Wavefront materials in a .mtl file"""
+
     def __init__(self, filename=None):
         self.filename = None
         self.materials = {}
@@ -127,20 +131,22 @@ class MtlFile:
             linenumber = linenumber + 1
             if not line:
                 continue
-            if line[0] == '#':
+            if line[0] == "#":
                 self.comments[linenumber] = line
-                print line
+                print(line)
                 continue
             tokens = line.split()
             if not tokens:
                 continue
-            if verbose: print "tokens[0]:", tokens
+            if verbose:
+                print("tokens[0]:"), tokens
             if tokens[0] == "newmtl":
                 mat = ObjMaterial()
                 mat.filename = filename
                 mat.name = tokens[1]
                 self.materials[mat.name] = mat
-                if verbose: print "newmtl:", mat.name
+                if verbose:
+                    (print("newmtl:")), mat.name
                 continue
             if tokens[0] in ("Ns", "d", "Tr"):
                 # "d factor" - specifies the dissovle for the current material,
@@ -173,19 +179,23 @@ class MtlFile:
                 # map_Bump == bump
                 # map_Ks == specular
                 mat.put(tokens[0], pathify(tokens[1]))
-                if verbose: print "map:", mat.name, tokens[0], mat.get(tokens[0])
+                if verbose:
+                    print("map:"), mat.name, tokens[0], mat.get(tokens[0])
                 continue
             if tokens[0] in ("Ni"):
                 # blender's .obj exporter can emit this "Ni 1.000000"
                 mat.put(tokens[0], float(tokens[1]))
                 continue
-            print "file \"%s\": line %d: unrecognized:" % (filename, linenumber), tokens
+            print('file "%s": line %d: unrecognized:') % (filename, linenumber), tokens
         file.close()
-        if verbose: print "%d materials" % len(self.materials), "loaded from", filename
+        if verbose:
+            print("%d materials") % len(self.materials), "loaded from", filename
         return self
+
 
 class ObjFile:
     """a representation of a wavefront .obj file"""
+
     def __init__(self, filename=None):
         self.filename = None
         self.objects = ["defaultobject"]
@@ -205,7 +215,8 @@ class ObjFile:
             self.read(filename)
 
     def read(self, filename, verbose=False):
-        if verbose: print "ObjFile.read:", "filename:", filename
+        if verbose:
+            print("ObjFile.read:"), "filename:", filename
         self.filename = filename
         self.objects = ["defaultobject"]
         self.groups = ["defaultgroup"]
@@ -230,57 +241,66 @@ class ObjFile:
             linenumber = linenumber + 1
             if not line:
                 continue
-            if line[0] == '#':
+            if line[0] == "#":
                 self.comments[linenumber] = line
-                print line
+                print(line)
                 continue
             tokens = line.split()
             if not tokens:
                 continue
             if tokens[0] == "mtllib":
-                if verbose: print "mtllib:", tokens[1:]
+                if verbose:
+                    print("mtllib:"), tokens[1:]
                 mtllib = MtlFile(tokens[1])
-                # if verbose: print mtllib
+                # if verbose: print(mtllib
                 self.matlibs.append(mtllib)
                 self.indexmaterials(mtllib)
                 continue
             if tokens[0] == "g":
-                if verbose: print "g:", tokens[1:]
+                if verbose:
+                    print("g:"), tokens[1:]
                 self.__newgroup("".join(tokens[1:]))
                 continue
             if tokens[0] == "o":
-                if verbose: print "o:", tokens[1:]
+                if verbose:
+                    print("o:"), tokens[1:]
                 self.__newobject("".join(tokens[1:]))
                 continue
             if tokens[0] == "usemtl":
-                if verbose: print "usemtl:", tokens[1:]
+                if verbose:
+                    print("usemtl:"), tokens[1:]
                 self.__usematerial(tokens[1])
                 continue
             if tokens[0] == "v":
-                if verbose: print "v:", tokens[1:]
+                if verbose:
+                    print("v:"), tokens[1:]
                 self.__newv(tokens[1:])
                 continue
             if tokens[0] == "vn":
-                if verbose: print "vn:", tokens[1:]
+                if verbose:
+                    print("vn:"), tokens[1:]
                 self.__newnormal(tokens[1:])
                 continue
             if tokens[0] == "vt":
-                if verbose: print "vt:", tokens[1:]
+                if verbose:
+                    print("vt:"), tokens[1:]
                 self.__newuv(tokens[1:])
                 continue
             if tokens[0] == "f":
-                if verbose: print "f:", tokens[1:]
+                if verbose:
+                    print("f:"), tokens[1:]
                 self.__newface(tokens[1:])
                 continue
             if tokens[0] == "s":
                 # apparently, this enables/disables smoothing
-                print "%s:%d:" % (filename, linenumber), "ignoring:", tokens
+                print("%s:%d:") % (filename, linenumber), "ignoring:", tokens
                 continue
             if tokens[0] == "l":
-                if verbose: print "l:", tokens[1:]
+                if verbose:
+                    print("l:"), tokens[1:]
                 self.__newpolyline(tokens[1:])
                 continue
-            print "%s:%d:" % (filename, linenumber), "unknown:", tokens
+            print("%s:%d:") % (filename, linenumber), "unknown:", tokens
         file.close()
         return self
 
@@ -289,26 +309,27 @@ class ObjFile:
         for vert in lst:
             vinfo = vert.split("/")
             vlen = len(vinfo)
-            vertex = {'v':None, 'vt':None, 'vn':None}
+            vertex = {"v": None, "vt": None, "vn": None}
             if vlen == 1:
-                vertex['v'] = int(vinfo[0])
+                vertex["v"] = int(vinfo[0])
             elif vlen == 2:
-                if vinfo[0] != '':
-                    vertex['v'] = int(vinfo[0])
-                if vinfo[1] != '':
-                    vertex['vt'] = int(vinfo[1])
+                if vinfo[0] != "":
+                    vertex["v"] = int(vinfo[0])
+                if vinfo[1] != "":
+                    vertex["vt"] = int(vinfo[1])
             elif vlen == 3:
-                if vinfo[0] != '':
-                    vertex['v'] = int(vinfo[0])
-                if vinfo[1] != '':
-                    vertex['vt'] = int(vinfo[1])
-                if vinfo[2] != '':
-                    vertex['vn'] = int(vinfo[2])
+                if vinfo[0] != "":
+                    vertex["v"] = int(vinfo[0])
+                if vinfo[1] != "":
+                    vertex["vt"] = int(vinfo[1])
+                if vinfo[2] != "":
+                    vertex["vn"] = int(vinfo[2])
             else:
-                print "aborting..."
-                raise UNKNOWN, res
+                print("aborting...")
+                raise Exception("Unknown vertex format: {}".format(res))
             res.append(vertex)
-        if False: print res
+        if False:
+            print(res)
         return res
 
     def __enclose(self, lst):
@@ -317,13 +338,15 @@ class ObjFile:
 
     def __newpolyline(self, l):
         polyline = self.__vertlist(l)
-        if False: print "__newline:", polyline
+        if False:
+            print("__newline:"), polyline
         self.polylines.append(self.__enclose(polyline))
         return self
 
     def __newface(self, f):
         face = self.__vertlist(f)
-        if False: print face
+        if False:
+            print(face)
         self.faces.append(self.__enclose(face))
         return self
 
@@ -349,8 +372,10 @@ class ObjFile:
         for mname in mtllib.materials:
             mobj = mtllib.materials[mname]
             self.materialsbyname[mobj.name] = mobj
-        if verbose: 
-            print "indexmaterials:", mtllib.filename, "materials:", self.materialsbyname.keys()
+        if verbose:
+            print(
+                "indexmaterials:"
+            ), mtllib.filename, "materials:", self.materialsbyname.keys()
         return self
 
     def __closeobject(self):
@@ -359,7 +384,8 @@ class ObjFile:
 
     def __newobject(self, object):
         self.__closeobject()
-        if False: print "__newobject:", "object:", object
+        if False:
+            print("__newobject:"), "object:", object
         self.currentobject = object
         self.objects.append(object)
         return self
@@ -370,17 +396,19 @@ class ObjFile:
 
     def __newgroup(self, group):
         self.__closegroup()
-        if False: print "__newgroup:", "group:", group
+        if False:
+            print("__newgroup:"), "group:", group
         self.currentgroup = group
         self.groups.append(group)
         return self
 
     def __usematerial(self, material):
-        if False: print "__usematerial:", "material:", material
+        if False:
+            print("__usematerial:"), "material:", material
         if self.materialsbyname.has_key(material):
             self.currentmaterial = material
         else:
-            print "warning:", "__usematerial:", "unknown material:", material
+            print("warning:"), "__usematerial:", "unknown material:", material
         return self
 
     def __itemsby(self, itemlist, objname, groupname):
@@ -400,18 +428,18 @@ class ObjFile:
 
     def __eggifyverts(self, eprim, evpool, vlist):
         for vertex in vlist:
-            ixyz = vertex['v']
-            vinfo = self.points[ixyz-1]
+            ixyz = vertex["v"]
+            vinfo = self.points[ixyz - 1]
             vxyz, vmeta = vinfo
             ev = EggVertex()
             ev.setPos(Point3D(vxyz[0], vxyz[1], vxyz[2]))
-            iuv = vertex['vt']
+            iuv = vertex["vt"]
             if iuv is not None:
-                vuv = self.uvs[iuv-1]
+                vuv = self.uvs[iuv - 1]
                 ev.setUv(Point2D(vuv[0], vuv[1]))
-            inormal = vertex['vn']
+            inormal = vertex["vn"]
             if inormal is not None:
-                vn = self.normals[inormal-1]
+                vn = self.normals[inormal - 1]
                 ev.setNormal(Vec3D(vn[0], vn[1], vn[2]))
             evpool.addVertex(ev)
             eprim.addVertex(ev)
@@ -453,7 +481,7 @@ class ObjFile:
             egrp.addChild(epoly)
             self.__eggifymats(epoly, wmat)
             self.__eggifyverts(epoly, evpool, vlist)
-        #; each matching face
+        # ; each matching face
         return self
 
     def __polylinestoegg(self, egg, objname, groupname):
@@ -473,11 +501,12 @@ class ObjFile:
             egrp.addChild(eline)
             self.__eggifymats(eline, wmat)
             self.__eggifyverts(eline, evpool, vlist)
-        #; each matching line
+        # ; each matching line
         return self
 
     def toEgg(self, verbose=True):
-        if verbose: print "converting..."
+        if verbose:
+            print("converting...")
         # make a new egg
         egg = EggData()
         # convert polygon faces
@@ -492,6 +521,7 @@ class ObjFile:
                     self.__polylinestoegg(egg, objname, groupname)
         return egg
 
+
 def pathify(path):
     if os.path.isfile(path):
         return path
@@ -503,29 +533,32 @@ def pathify(path):
     h, t = os.path.split(path)
     if os.path.isfile(t):
         return t
-    print "warning: can't make sense of this map file name:", orig
+    print("warning: can't make sense of this map file name:"), orig
     return t
-    
+
+
 def main(argv=None):
     if argv is None:
         argv = sys.argv
     try:
-        opts, args = getopt.getopt(argv[1:], "hn:bs", ["help", "normals", "binormals", "show"])
-    except getopt.error, msg:
-        print msg
-        print __doc__
+        opts, args = getopt.getopt(
+            argv[1:], "hn:bs", ["help", "normals", "binormals", "show"]
+        )
+    except getopt.error as msg:
+        print(msg)
+        print(__doc__)
         return 2
     show = False
     for o, a in opts:
         if o in ("-h", "--help"):
-            print __doc__
+            print(__doc__)
             return 0
         elif o in ("-s", "--show"):
             show = True
     for infile in args:
         try:
             if ".obj" not in infile:
-                print "WARNING", finfile, "does not look like a valid obj file"
+                print("WARNING"), finfile, "does not look like a valid obj file"
                 continue
             obj = ObjFile(infile)
             egg = obj.toEgg()
@@ -544,11 +577,10 @@ def main(argv=None):
             egg.writeEgg(Filename(outfile))
             if show:
                 os.system("pview " + outfile)
-        except Exception,e:
-            print e
+        except Exception(e):
+            print(e)
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
-
-
